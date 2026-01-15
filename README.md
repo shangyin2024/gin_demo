@@ -15,6 +15,8 @@
 
 </div>
 
+> **⚠️ 重要**: 从 GitHub 下载后，必须先重命名模块！详见 👉 [QUICK_START.md](QUICK_START.md)
+
 ---
 
 ## ✨ 特性

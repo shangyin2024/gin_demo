@@ -45,7 +45,7 @@
 
 ---
 
-## 🚀 快速开始（3 步启动）
+## 🚀 快速开始（4 步启动）
 
 ### 方式 1: 使用 GitHub 模板（推荐）
 
@@ -58,7 +58,26 @@ git clone https://github.com/yourusername/go-web-scaffold.git my-project
 cd my-project
 ```
 
-#### 2️⃣ 初始化项目
+#### 2️⃣ 重命名模块（⚠️ 必须执行）
+
+```bash
+# 使用自动重命名脚本（推荐）
+chmod +x scripts/rename-module.sh
+./scripts/rename-module.sh github.com/yourname/my-project
+
+# 示例:
+./scripts/rename-module.sh github.com/mycompany/awesome-api
+
+# 脚本会自动:
+# - 更新 go.mod 模块名
+# - 替换所有 Go 文件中的导入路径
+# - 更新 Makefile 和文档
+# - 运行 go mod tidy
+```
+
+**⚠️ 重要**: 此步骤必须在开始开发前完成，否则导入路径会出错！
+
+#### 3️⃣ 初始化项目
 
 ```bash
 # 自动初始化（安装工具、启动环境、执行迁移）
@@ -70,7 +89,7 @@ make dev          # 启动 Docker 环境
 make migrate-up   # 执行数据库迁移
 ```
 
-#### 3️⃣ 运行项目
+#### 4️⃣ 运行项目
 
 ```bash
 make run
@@ -80,19 +99,36 @@ make run
 
 ---
 
-### 方式 2: 手动克隆
+### 方式 2: 完全手动
+
+如果你想完全理解每一步：
 
 ```bash
-# 克隆项目
-git clone https://github.com/yourusername/go-web-scaffold.git
-cd go-web-scaffold
+# 1. 克隆项目
+git clone https://github.com/yourusername/go-web-scaffold.git my-project
+cd my-project
 
-# 重命名模块（重要！）
-./scripts/rename-module.sh your-module-name
+# 2. 手动重命名模块
+# 编辑 go.mod，将第一行改为:
+# module github.com/yourname/my-project
 
-# 启动
-make init
-make run
+# 3. 批量替换导入路径
+find . -type f -name "*.go" ! -path "./vendor/*" -exec sed -i '' 's/gin_demo/my-project/g' {} +
+
+# 或使用更精确的替换（推荐）
+grep -rl "gin_demo" --include="*.go" . | xargs sed -i '' 's|gin_demo|my-project|g'
+
+# 4. 更新依赖
+go mod tidy
+
+# 5. 重新生成代码
+make generate
+
+# 6. 验证
+make build
+
+# 7. 启动
+make init && make run
 ```
 
 ---
