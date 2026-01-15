@@ -1,0 +1,152 @@
+version: '3.8'
+
+services:
+  # ============================================================================
+  # 应用服务
+  # ============================================================================
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - SERVER_HOST=0.0.0.0
+      - SERVER_PORT=8080
+      - DATABASE_DRIVER=mysql
+      - DATABASE_HOST=mysql
+      - DATABASE_PORT=3306
+      - DATABASE_USER=root
+      - DATABASE_PASSWORD=password
+      - DATABASE_DBNAME=gin_demo
+      # Redis 哨兵配置
+      - REDIS_SENTINEL_ENABLED=true
+      - REDIS_SENTINEL_MASTER=mymaster
+      - REDIS_SENTINEL_ADDRS=redis-sentinel-1:26379,redis-sentinel-2:26379,redis-sentinel-3:26379
+      - REDIS_PASSWORD=
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis-master:
+        condition: service_started
+      redis-sentinel-1:
+        condition: service_started
+    networks:
+      - gin-demo
+
+  # ============================================================================
+  # MySQL 数据库
+  # ============================================================================
+  mysql:
+    image: mysql:8.0
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: gin_demo
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-ppassword"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - gin-demo
+
+  # ============================================================================
+  # Redis 主从 + 哨兵模式
+  # ============================================================================
+  
+  # Redis Master
+  redis-master:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes --requirepass ""
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_master_data:/data
+    networks:
+      - gin-demo
+
+  # Redis Slave 1
+  redis-slave-1:
+    image: redis:7-alpine
+    command: redis-server --slaveof redis-master 6379 --appendonly yes --requirepass ""
+    depends_on:
+      - redis-master
+    volumes:
+      - redis_slave1_data:/data
+    networks:
+      - gin-demo
+
+  # Redis Slave 2
+  redis-slave-2:
+    image: redis:7-alpine
+    command: redis-server --slaveof redis-master 6379 --appendonly yes --requirepass ""
+    depends_on:
+      - redis-master
+    volumes:
+      - redis_slave2_data:/data
+    networks:
+      - gin-demo
+
+  # Redis Sentinel 1
+  redis-sentinel-1:
+    image: redis:7-alpine
+    command: >
+      sh -c "echo 'port 26379
+      sentinel monitor mymaster redis-master 6379 2
+      sentinel down-after-milliseconds mymaster 5000
+      sentinel parallel-syncs mymaster 1
+      sentinel failover-timeout mymaster 10000' > /etc/redis/sentinel.conf &&
+      redis-sentinel /etc/redis/sentinel.conf"
+    depends_on:
+      - redis-master
+    ports:
+      - "26379:26379"
+    networks:
+      - gin-demo
+
+  # Redis Sentinel 2
+  redis-sentinel-2:
+    image: redis:7-alpine
+    command: >
+      sh -c "echo 'port 26379
+      sentinel monitor mymaster redis-master 6379 2
+      sentinel down-after-milliseconds mymaster 5000
+      sentinel parallel-syncs mymaster 1
+      sentinel failover-timeout mymaster 10000' > /etc/redis/sentinel.conf &&
+      redis-sentinel /etc/redis/sentinel.conf"
+    depends_on:
+      - redis-master
+    ports:
+      - "26380:26379"
+    networks:
+      - gin-demo
+
+  # Redis Sentinel 3
+  redis-sentinel-3:
+    image: redis:7-alpine
+    command: >
+      sh -c "echo 'port 26379
+      sentinel monitor mymaster redis-master 6379 2
+      sentinel down-after-milliseconds mymaster 5000
+      sentinel parallel-syncs mymaster 1
+      sentinel failover-timeout mymaster 10000' > /etc/redis/sentinel.conf &&
+      redis-sentinel /etc/redis/sentinel.conf"
+    depends_on:
+      - redis-master
+    ports:
+      - "26381:26379"
+    networks:
+      - gin-demo
+
+volumes:
+  mysql_data:
+  redis_master_data:
+  redis_slave1_data:
+  redis_slave2_data:
+
+networks:
+  gin-demo:
+    driver: bridge

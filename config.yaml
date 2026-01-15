@@ -1,0 +1,103 @@
+# Gin Demo 配置文件
+# 注意：敏感信息（如密码）应该通过环境变量设置
+
+# 服务器配置
+server:
+  host: 0.0.0.0
+  port: 8080
+  mode: debug # debug, release, test
+  read_timeout: 10s
+  write_timeout: 10s
+  idle_timeout: 60s
+  max_request_body_size: 10485760 # 10MB
+
+# 数据库配置
+database:
+  driver: mysql  # mysql 或 postgres
+  host: localhost
+  port: 3306
+  user: root
+  password: password  # 生产环境应使用环境变量 DATABASE_PASSWORD
+  dbname: gin_demo
+  sslmode: disable  # 仅 PostgreSQL 使用
+  max_open_conns: 50
+  max_idle_conns: 10
+  conn_max_lifetime: 3m
+  conn_max_idle_time: 5m
+
+# Redis 配置
+redis:
+  # 单机模式配置
+  host: localhost
+  port: 6379
+  password: ""  # 生产环境应使用环境变量 REDIS_PASSWORD
+  db: 0
+  max_retries: 3
+  pool_size: 10
+  min_idle_conns: 5
+  
+  # 哨兵模式配置（生产环境推荐）
+  sentinel_enabled: false
+  sentinel_master: mymaster
+  sentinel_addrs:
+    - localhost:26379
+    - localhost:26380
+    - localhost:26381
+
+# 日志配置
+logger:
+  level: info  # debug, info, warn, error
+  format: json # json, text
+  add_source: false
+  request_id_key: request_id
+
+# JWT 配置
+jwt:
+  secret: your-secret-key-change-in-production  # 生产环境必须修改
+  expiration: 24h  # Token 过期时间
+
+# CORS 跨域配置
+cors:
+  allowed_origins: # 允许的来源（生产环境应配置具体域名）
+    - "http://localhost:3000"
+    - "http://localhost:8080"
+  allow_credentials: true
+  max_age: 43200 # 12小时
+
+# 安全配置
+security:
+  # HTTP 安全头
+  headers:
+    enabled: true
+    enable_hsts: false  # 开发环境关闭（需要 HTTPS）
+    hsts_max_age: 31536000  # 1年
+    hsts_include_subdomains: true
+    enable_csp: true
+    csp_policy: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline';"
+    enable_frame_options: true
+    frame_options: "DENY"
+  
+  # 压缩传输
+  enable_compression: true
+  compression_level: 5  # -1 (默认), 0-9
+  
+  # TLS/HTTPS
+  tls:
+    enabled: false  # 开发环境关闭
+    cert_file: ""
+    key_file: ""
+    min_version: "1.2"
+
+# 缓存配置
+cache:
+  default_ttl: 5m
+  user_ttl: 5m
+  user_index_ttl: 10m
+  user_count_ttl: 1m
+  user_session_ttl: 30m
+  content_ttl: 10m
+  content_list_ttl: 2m
+  stats_ttl: 1m
+  not_found_ttl: 5m
+  enable_jitter: true
+  jitter_percent: 20

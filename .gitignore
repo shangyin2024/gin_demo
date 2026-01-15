@@ -1,0 +1,37 @@
+# 编译产物
+/bin/
+/gin_demo
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+
+# 临时文件
+/tmp/
+*.tmp
+*.log
+*.swp
+*.swo
+
+# 测试覆盖
+*.out
+coverage.html
+coverage.txt
+
+# IDE
+.vscode/
+.idea/
+*.iml
+.DS_Store
+
+# 环境变量（如果使用）
+.env
+.env.local
+
+# 依赖
+/vendor/
+
+# Air 热重载
+/.air/

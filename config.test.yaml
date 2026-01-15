@@ -1,0 +1,58 @@
+# 测试环境配置
+# 使用方式: export APP_ENV=test
+
+server:
+  mode: test
+  port: 8081  # 使用不同端口避免冲突
+
+# 数据库配置（测试环境）
+database:
+  driver: mysql  # 使用 MySQL
+  host: localhost
+  port: 3306
+  user: root
+  password: password
+  dbname: gin_demo_test
+  sslmode: disable
+  max_open_conns: 10
+  max_idle_conns: 2
+  conn_max_lifetime: 5m
+  conn_max_idle_time: 10m
+
+# Redis 配置（测试环境）
+redis:
+  host: localhost
+  port: 6379
+  password: ""
+  db: 1  # 使用不同的数据库编号
+  max_retries: 3
+  pool_size: 5
+  min_idle_conns: 2
+  sentinel_enabled: false
+
+# 日志配置
+logger:
+  level: debug  # 测试环境使用 debug 级别
+  format: text  # 测试环境使用文本格式便于阅读
+  add_source: true
+
+# JWT 配置
+jwt:
+  secret: test-jwt-secret-key-for-testing-only
+  expiration: 1h  # 测试环境较短的过期时间
+
+# CORS 配置
+cors:
+  allowed_origins:
+    - "http://localhost:3000"
+    - "http://localhost:3001"
+  allow_credentials: true
+  max_age: 3600
+
+# 安全配置
+security:
+  headers:
+    enabled: false  # 测试环境可以禁用安全头
+  enable_compression: false  # 测试环境禁用压缩便于调试
+  tls:
+    enabled: false  # 测试环境不使用 TLS

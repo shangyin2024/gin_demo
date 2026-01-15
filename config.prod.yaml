@@ -1,0 +1,80 @@
+# 生产环境配置
+# 该配置会覆盖 config.yaml 中的对应项
+# 使用方式: export APP_ENV=prod
+
+server:
+  mode: release  # 生产环境必须使用 release 模式
+  port: 8080
+
+# 数据库配置（生产环境）
+database:
+  driver: mysql  # 使用 MySQL
+  host: prod-mysql.example.com  # 生产数据库地址
+  port: 3306
+  user: prod_user
+  # 密码等敏感信息应通过环境变量设置: DATABASE_PASSWORD
+  dbname: gin_demo_prod
+  sslmode: disable  # MySQL 不使用此项
+  max_open_conns: 100
+  max_idle_conns: 20
+  conn_max_lifetime: 3m
+  conn_max_idle_time: 5m
+
+# Redis 配置（生产环境 - 哨兵模式）
+redis:
+  # 单机模式（备用）
+  host: prod-redis.example.com
+  port: 6379
+  password: ""  # 密码通过环境变量设置: REDIS_PASSWORD
+  db: 0
+  max_retries: 3
+  pool_size: 50
+  min_idle_conns: 10
+  
+  # 哨兵模式（推荐）
+  sentinel_enabled: true
+  sentinel_master: mymaster
+  sentinel_addrs:
+    - prod-sentinel-1.example.com:26379
+    - prod-sentinel-2.example.com:26379
+    - prod-sentinel-3.example.com:26379
+
+# 日志配置
+logger:
+  level: info  # 生产环境使用 info 级别
+  format: json
+  add_source: false
+
+# JWT 配置
+jwt:
+  # 生产环境必须通过环境变量设置自定义密钥: JWT_SECRET
+  expiration: 24h
+
+# CORS 配置
+cors:
+  allowed_origins:
+    - "https://www.example.com"
+    - "https://app.example.com"
+  allow_credentials: true
+  max_age: 86400  # 24小时
+
+# 安全配置
+security:
+  headers:
+    enabled: true
+    enable_hsts: true  # 生产环境启用 HSTS
+    hsts_max_age: 31536000  # 1年
+    hsts_include_subdomains: true
+    enable_csp: true
+    csp_policy: "default-src 'self'; script-src 'self'; style-src 'self';"
+    enable_frame_options: true
+    frame_options: "DENY"
+  
+  enable_compression: true
+  compression_level: 6  # 生产环境更高的压缩级别
+  
+  tls:
+    enabled: true  # 生产环境应启用 TLS
+    cert_file: "/etc/ssl/certs/server.crt"
+    key_file: "/etc/ssl/private/server.key"
+    min_version: "1.2"

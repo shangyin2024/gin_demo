@@ -1,0 +1,57 @@
+# 开发环境配置
+server:
+  host: 0.0.0.0
+  port: 8080
+  mode: debug
+  read_timeout: 10s
+  write_timeout: 10s
+  idle_timeout: 60s
+  max_request_body_size: 10485760 # 10MB
+
+database:
+  driver: mysql  # 使用 MySQL
+  host: localhost
+  port: 3306     # MySQL 端口
+  user: root
+  password: password
+  dbname: gin_demo_dev
+  sslmode: disable
+  max_open_conns: 25
+  max_idle_conns: 5
+  conn_max_lifetime: 5m
+  conn_max_idle_time: 10m
+
+redis:
+  # 单机模式
+  host: localhost
+  port: 6379
+  password: ""
+  db: 0
+  max_retries: 3
+  pool_size: 10
+  min_idle_conns: 5
+  
+  # 哨兵模式（如需测试）
+  sentinel_enabled: false
+  sentinel_master: mymaster
+  sentinel_addrs:
+    - localhost:26379
+    - localhost:26380
+    - localhost:26381
+
+logger:
+  level: debug
+  format: text
+  add_source: true
+  request_id_key: request_id
+
+jwt:
+  secret: dev-secret-key-123456
+  expiration: 24h
+
+cors:
+  allowed_origins:
+    - "http://localhost:3000"
+    - "http://localhost:8080"
+  allow_credentials: true
+  max_age: 43200
